@@ -41,7 +41,12 @@ def nmapScan(tgtHost, tgtPort):
 
 def main():
 
-    usage = 'usage %prog -H <target host> -p <target ports>'
+    usage = """usage %prog -H <target host> -p <target ports>
+
+examples:
+    %prog -H 127.0.0.1 -p 22
+    %prog -H www.google.com -p 80,443
+    %prog -H 127.0.0.1 -p 22,8000-8010"""
 
     parser = optparse.OptionParser( usage )
 
@@ -61,8 +66,15 @@ def main():
 
     print "Port scan report for: %s" % tgtHost
     for tgtPort in tgtPorts:
-        t = Thread( target=nmapScan, args = ( tgtHost, tgtPort ) )
-        t.run()
+            if tgtPort.find('-') > 0:
+                (start, end) = tgtPort.split('-')
+                for tgtPort in range(int(start),int(end)+1):
+                    print tgtPort
+                    t = Thread( target=nmapScan, args = ( tgtHost, str(tgtPort) ) )
+                    t.run()
+            else:
+                t = Thread( target=nmapScan, args = ( tgtHost, tgtPort ) )
+                t.run()
 
 if __name__ == '__main__':
     main()
