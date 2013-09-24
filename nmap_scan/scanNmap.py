@@ -27,7 +27,12 @@ def nmapScan(tgtHost, tgtPort):
         state=nmap_scanner[tgtHost]['tcp'][int(tgtPort)]['state']
 
         display_semaphore.acquire()
-        print "[*] %s/tcp - %s" % (tgtPort, state)
+        if state == 'open':
+            print "[*] %s/tcp - %s" % (tgtPort, state)
+        elif state == 'filtered':
+            print "[+] %s/tcp - %s" % (tgtPort, state)
+        elif state == 'closed':
+            print "[-] %s/tcp - %s" % (tgtPort, state)
 
     except KeyError:
         display_semaphore.acquire()
@@ -69,7 +74,6 @@ examples:
             if tgtPort.find('-') > 0:
                 (start, end) = tgtPort.split('-')
                 for tgtPort in range(int(start),int(end)+1):
-                    print tgtPort
                     t = Thread( target=nmapScan, args = ( tgtHost, str(tgtPort) ) )
                     t.run()
             else:
